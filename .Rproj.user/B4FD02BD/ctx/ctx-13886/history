@@ -1,0 +1,40 @@
+knitr::opts_chunk$set(
+echo       = TRUE,
+warning    = FALSE,
+message    = FALSE,
+fig.width  = 10,
+fig.height = 8,
+dpi        = 150
+)
+# Instala la primera vez (quita el #):
+# install.packages(c("sf", "tidyverse", "ggrepel", "viridis",
+#                    "scales", "cowplot", "RColorBrewer", "leaflet"))
+library(sf)
+# Instala la primera vez (quita el #):
+# install.packages(c("sf", "tidyverse", "ggrepel", "viridis",
+#                    "scales", "cowplot", "RColorBrewer", "leaflet"))
+library(sf)
+install.packages("terra", type = "binary")
+install.packages("sf", type = "binary")
+>install.packages("sf", type = "binary")
+install.packages("sf", type = "binary")
+# Leer el shapefile desde la carpeta inputs/
+peru_sf <- st_read("inputs/LIMITE_DEPARTAMENTAL_INEI_geogpsperu.shp")
+# Instala la primera vez (quita el #):
+# install.packages(c("sf", "tidyverse", "ggrepel", "viridis",
+#                    "scales", "cowplot", "RColorBrewer", "leaflet"))
+library(readr)
+# Instala la primera vez (quita el #):
+# install.packages(c("sf", "tidyverse", "ggrepel", "viridis",
+#                    "scales", "cowplot", "RColorBrewer", "leaflet"))
+library(readr)
+install.packages("readr")
+# Instala la primera vez (quita el #):
+# install.packages(c("sf", "tidyverse", "ggrepel", "viridis",
+#                    "scales", "cowplot", "RColorBrewer", "leaflet"))
+library(readr)
+# Instala la primera vez (quita el #):
+# install.packages(c("sf", "tidyverse", "ggrepel", "viridis",
+#                    "scales", "cowplot", "RColorBrewer", "leaflet"))
+library(readr)
+install.packages("rlang")

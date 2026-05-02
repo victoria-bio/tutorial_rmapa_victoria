@@ -1,0 +1,7 @@
+"0","# Instala la primera vez (quita el #):"
+"0","# install.packages(c(""sf"", ""tidyverse"", ""ggrepel"", ""viridis"","
+"0","#                    ""scales"", ""cowplot"", ""RColorBrewer"", ""leaflet""))"
+"0",""
+"0","library(sf)"
+"2","Error in library(sf) : there is no package called ‘sf’
+"

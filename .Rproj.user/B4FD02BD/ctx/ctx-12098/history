@@ -1,0 +1,97 @@
+knitr::opts_chunk$set(
+echo    = TRUE,
+warning = FALSE,
+message = FALSE,
+fig.width  = 10,
+fig.height = 8,
+dpi = 150
+)
+# ─── Configuración del directorio ───────────────────────────────────────────
+setwd("C:/Users/Victoria/BIOINGENIERIA UTEC/github/tutorial_rmapa_victoria")
+# ─── Leer el shapefile ───────────────────────────────────────────────────────
+peru_sf <- st_read("inputs/LIMITE_DEPARTAMENTAL_INEI_geogpsperu.shp")
+library(sf)          # Manejo de datos espaciales (Simple Features)
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+if (!requireNamespace("rnaturalearth", quietly = TRUE))
+install.packages(c("rnaturalearth", "rnaturalearthdata"))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+# Departamentos de Perú (nivel 1 de subdivisiones)
+peru_sf <- ne_states(country = "Peru", returnclass = "sf") %>%
+select(DEPARTAMEN = name, geometry) %>%
+mutate(DEPARTAMEN = toupper(DEPARTAMEN))
+# ════════════════════════════════════════════════════════════════════════════
+# SIMULACIÓN: En un entorno sin shapefile local usamos el paquete 'rnaturalearth'
+# para tener las geometrías de Perú. En tu PC, usa st_read() con el archivo .shp
+# ════════════════════════════════════════════════════════════════════════════
+if (!requireNamespace("rnaturalearth", quietly = TRUE))
+install.packages(c("rnaturalearth", "rnaturalearthdata"))

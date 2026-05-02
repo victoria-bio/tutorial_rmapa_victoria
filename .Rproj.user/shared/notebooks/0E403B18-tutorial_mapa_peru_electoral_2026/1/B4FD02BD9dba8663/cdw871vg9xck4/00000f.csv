@@ -1,0 +1,4 @@
+"0",""
+"0","library(sf)          # Manejo de datos espaciales (Simple Features)"
+"2","Error in library(sf) : there is no package called ‘sf’
+"

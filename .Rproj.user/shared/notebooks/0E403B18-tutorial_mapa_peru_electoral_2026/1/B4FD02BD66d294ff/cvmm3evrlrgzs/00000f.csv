@@ -1,0 +1,38 @@
+"0","install.packages(""rlang"")"
+"2","trying URL 'https://cran.rstudio.com/bin/windows/contrib/4.5/rlang_1.2.0.zip'
+"
+"2","Content type 'application/zip'"
+"2"," length 1649208 bytes (1.6 MB)
+"
+"2","downloaded 1.6 MB
+
+"
+"1","package ‘rlang’ successfully unpacked and MD5 sums checked
+"
+"1","
+"
+"1",""
+"1","The downloaded binary packages are in
+	C:\Users\Victoria\AppData\Local\Temp\RtmpEjSwxB\downloaded_packages"
+"1",""
+"1","
+"
+"0","install.packages(""readr"")"
+"2","trying URL 'https://cran.rstudio.com/bin/windows/contrib/4.5/readr_2.2.0.zip'
+"
+"2","Content type 'application/zip'"
+"2"," length 1206629 bytes (1.2 MB)
+"
+"2","downloaded 1.2 MB
+
+"
+"1","package ‘readr’ successfully unpacked and MD5 sums checked
+"
+"1","
+"
+"1",""
+"1","The downloaded binary packages are in
+	C:\Users\Victoria\AppData\Local\Temp\RtmpEjSwxB\downloaded_packages"
+"1",""
+"1","
+"

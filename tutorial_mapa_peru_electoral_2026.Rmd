@@ -1,0 +1,506 @@
+---
+title: "Tutorial: Elaboración de Mapas del Perú en R"
+subtitle: "Resultados Oficiales — Elecciones Presidenciales 2026, Primera Vuelta (ONPE)"
+author: "Análisis de Datos Electorales — Perú"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+    code_folding: show
+    fig_caption: true
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo       = TRUE,
+  warning    = FALSE,
+  message    = FALSE,
+  fig.width  = 10,
+  fig.height = 8,
+  dpi        = 150
+)
+```
+
+> **Tutorial base seleccionado:** [rmaps-peruvian-case](https://github.com/rmcondor/rmaps-peruvian-case) de \@rmcondor — el más completo en español, orientado a Perú, con código reproducible en GitHub y datos del INEI.
+
+------------------------------------------------------------------------
+
+# Paquetes necesarios
+
+```{r paquetes}
+# Instala la primera vez (quita el #):
+# install.packages(c("sf", "tidyverse", "ggrepel", "viridis",
+#                    "scales", "cowplot", "RColorBrewer", "leaflet"))
+
+library(readr)
+library(sf)
+library(tidyverse)
+library(ggplot2)
+library(ggrepel)
+library(purrr)
+library(viridis)
+library(scales)
+library(cowplot)
+library(RColorBrewer)
+library(leaflet)
+```
+
+------------------------------------------------------------------------
+
+# Fuentes de datos y shapefile
+
+Un **shapefile** (`.shp`) es un formato vectorial geoespacial que almacena los límites administrativos del territorio. Siempre viene acompañado de archivos complementarios:
+
+| Extensión | Contenido              |
+|-----------|------------------------|
+| `.shp`    | Geometría (formas)     |
+| `.dbf`    | Tabla de atributos     |
+| `.shx`    | Índice de geometrías   |
+| `.prj`    | Sistema de coordenadas |
+
+El shapefile usado en este tutorial fue descargado de **GEO GPS Perú** (<https://www.geogpsperu.com>), que ofrece datos geoespaciales a nivel departamental, provincial y distrital.
+
+```{r leer_shapefile}
+# Establece el directorio de trabajo donde está tu proyecto
+setwd("C:/Users/Victoria/BIOINGENIERIA UTEC/github/tutorial_rmapa_victoria")
+
+# Leer el shapefile desde la carpeta inputs/
+peru_sf <- st_read("inputs/LIMITE_DEPARTAMENTAL_INEI_geogpsperu.shp")
+
+# Verificar columnas y sistema de coordenadas
+names(peru_sf)
+st_crs(peru_sf)
+```
+
+------------------------------------------------------------------------
+
+# Mapa Base del Perú
+
+## Mapa simple
+
+```{r mapa_base}
+ggplot(data = peru_sf) +
+  geom_sf(fill = "white", color = "gray40", linewidth = 0.4) +
+  theme_void() +
+  labs(
+    title   = "Peru — Limites Departamentales",
+    caption = "Fuente: INEI | Shapefile: GEO GPS Peru"
+  ) +
+  theme(
+    plot.title   = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.caption = element_text(hjust = 1, size = 8, color = "gray50")
+  )
+```
+
+## Mapa con etiquetas de departamentos
+
+```{r mapa_etiquetas}
+# Calcular centroides para ubicar las etiquetas
+peru_sf <- peru_sf %>%
+  mutate(
+    centroid = map(geometry, st_centroid),
+    coords   = map(centroid, st_coordinates),
+    coords_x = map_dbl(coords, 1),
+    coords_y = map_dbl(coords, 2)
+  )
+
+ggplot(data = peru_sf) +
+  geom_sf(fill = "#E8F4FD", color = "#2C3E50", linewidth = 0.5) +
+  geom_text_repel(
+    aes(x = coords_x, y = coords_y, label = DEPARTAMEN),
+    size         = 2.2,
+    color        = "#2C3E50",
+    fontface     = "bold",
+    max.overlaps = 20
+  ) +
+  theme_void() +
+  labs(
+    title   = "Peru — Departamentos",
+    caption = "Fuente: INEI"
+  ) +
+  theme(
+    plot.title   = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.caption = element_text(hjust = 1, size = 8, color = "gray50")
+  )
+```
+
+------------------------------------------------------------------------
+
+# Datos Electorales — Elecciones Presidenciales 2026
+
+Las Elecciones Generales 2026 se celebraron el 12 y 13 de abril de 2026. Con aproximadamente el 96% de actas procesadas por la ONPE, los resultados nacionales son:
+
+| Candidato               | Partido              | \% Votos Válidos | N° Votos    |
+|---------------------|-------------------|-----------------|-----------------|
+| **Keiko Fujimori**      | Fuerza Popular       | 17.05%           | \~2,715,413 |
+| **Roberto Sánchez**     | Juntos por el Perú   | 12.04%           | \~1,917,145 |
+| **Rafael López Aliaga** | Renovación Popular   | 11.91%           | \~1,896,735 |
+| Jorge Nieto             | Buen Gobierno        | 11.05%           | \~1,759,223 |
+| Ricardo Belmont         | Partido Cívico Obras | 10.17%           | \~1,619,835 |
+| Carlos Álvarez          | País para Todos      | 7.88%            | \~1,255,766 |
+| Alfonso López Chau      | Ahora Nación         | 7.34%            | \~1,169,263 |
+| Marisol Pérez Tello     | Primero la Gente     | 3.43%            | \~546,007   |
+| Carlos Espá             | Partido Sicreo       | 3.37%            | \~536,840   |
+
+La segunda vuelta está prevista para el 7 de junio de 2026 entre Keiko Fujimori y el segundo más votado (en disputa entre Roberto Sánchez y Rafael López Aliaga).
+
+## Construir la base de datos departamental
+
+```{r datos_electorales}
+# Datos ONPE por departamento — primera vuelta 2026
+# Fuente: ONPE (https://resultadoelectoral.onpe.gob.pe/)
+# Los nombres en DEPARTAMEN deben coincidir exactamente con los del shapefile.
+# Si el join falla, verificar con: sort(peru_sf$DEPARTAMEN)
+
+datos_elec <- tibble(
+  DEPARTAMEN = c(
+    "AMAZONAS", "ANCASH", "APURIMAC", "AREQUIPA",
+    "AYACUCHO", "CAJAMARCA", "CALLAO", "CUSCO",
+    "HUANCAVELICA", "HUANUCO", "ICA", "JUNIN",
+    "LA LIBERTAD", "LAMBAYEQUE", "LIMA", "LORETO",
+    "MADRE DE DIOS", "MOQUEGUA", "PASCO", "PIURA",
+    "PUNO", "SAN MARTIN", "TACNA", "TUMBES",
+    "UCAYALI"
+  ),
+  candidato_ganador = c(
+    "Sánchez", "Sánchez", "Sánchez", "López Aliaga",
+    "Sánchez", "Sánchez", "Fujimori", "Sánchez",
+    "Sánchez", "Sánchez", "Fujimori", "Nieto",
+    "Fujimori", "Fujimori", "López Aliaga", "Sánchez",
+    "Sánchez", "Sánchez", "Sánchez", "Fujimori",
+    "Sánchez", "Sánchez", "López Aliaga", "Fujimori",
+    "Sánchez"
+  ),
+  partido_ganador = c(
+    "Juntos por el Perú", "Juntos por el Perú", "Juntos por el Perú", "Renovación Popular",
+    "Juntos por el Perú", "Juntos por el Perú", "Fuerza Popular",     "Juntos por el Perú",
+    "Juntos por el Perú", "Juntos por el Perú", "Fuerza Popular",     "Buen Gobierno",
+    "Fuerza Popular",     "Fuerza Popular",     "Renovación Popular", "Juntos por el Perú",
+    "Juntos por el Perú", "Juntos por el Perú", "Juntos por el Perú", "Fuerza Popular",
+    "Juntos por el Perú", "Juntos por el Perú", "Renovación Popular", "Fuerza Popular",
+    "Juntos por el Perú"
+  ),
+  pct_ganador = c(
+    21.3, 18.5, 22.1, 16.8,
+    23.4, 19.7, 18.2, 20.8,
+    24.1, 20.5, 19.2, 15.6,
+    17.4, 18.1, 17.9, 17.2,
+    19.8, 16.4, 20.1, 16.9,
+    18.7, 19.3, 17.5, 17.8,
+    16.5
+  ),
+  pct_fujimori = c(
+    11.2, 14.3, 10.1, 14.5,
+     9.8, 12.4, 18.2, 11.5,
+     8.9, 10.8, 19.2, 13.4,
+    17.4, 18.1, 16.8, 12.1,
+    11.5, 13.2, 11.8, 16.9,
+    10.2, 12.7, 14.3, 17.8,
+    13.2
+  ),
+  participacion = c(
+    81.2, 85.6, 83.4, 87.1,
+    82.5, 80.9, 86.3, 84.7,
+    81.8, 80.5, 88.4, 86.1,
+    87.2, 86.8, 89.5, 78.4,
+    82.3, 87.6, 82.1, 85.3,
+    83.4, 81.9, 88.2, 85.7,
+    79.6
+  )
+)
+
+# Unir shapefile con datos electorales
+peru_elec <- peru_sf %>%
+  left_join(datos_elec, by = "DEPARTAMEN")
+
+glimpse(peru_elec)
+```
+
+------------------------------------------------------------------------
+
+# Mapas Electorales
+
+## Ganador por departamento
+
+```{r mapa_ganadores}
+colores_partidos <- c(
+  "Fuerza Popular"     = "#F97316",
+  "Juntos por el Perú" = "#EF4444",
+  "Renovación Popular" = "#1D4ED8",
+  "Buen Gobierno"      = "#7C3AED"
+)
+
+ggplot(data = peru_elec) +
+  geom_sf(aes(fill = partido_ganador), color = "white", linewidth = 0.5) +
+  geom_text_repel(
+    aes(x = coords_x, y = coords_y,
+        label = paste0(DEPARTAMEN, "\n", candidato_ganador)),
+    size         = 1.8,
+    color        = "white",
+    fontface     = "bold",
+    max.overlaps = 15,
+    bg.color     = "black",
+    bg.r         = 0.15
+  ) +
+  scale_fill_manual(
+    values = colores_partidos,
+    name   = "Partido ganador"
+  ) +
+  theme_void() +
+  labs(
+    title    = "Primera Vuelta Presidencial 2026 — Peru",
+    subtitle = "Candidato con mayor votación por departamento",
+    caption  = "Fuente: ONPE, resultados parciales (~96% actas) | Elaboración propia"
+  ) +
+  theme(
+    plot.title    = element_text(hjust = 0.5, size = 16, face = "bold",
+                                 color = "#1A1A2E", margin = margin(b = 5)),
+    plot.subtitle = element_text(hjust = 0.5, size = 11, color = "#555555"),
+    plot.caption  = element_text(hjust = 1, size = 8, color = "gray50",
+                                 margin = margin(t = 10)),
+    legend.position = "right",
+    legend.title    = element_text(size = 10, face = "bold"),
+    legend.text     = element_text(size = 9)
+  )
+```
+
+## Porcentaje de votos de Keiko Fujimori por departamento
+
+```{r mapa_keiko}
+ggplot(data = peru_elec) +
+  geom_sf(aes(fill = pct_fujimori), color = "white", linewidth = 0.5) +
+  geom_text(
+    aes(x = coords_x, y = coords_y,
+        label = paste0(round(pct_fujimori, 1), "%")),
+    size     = 2.5,
+    color    = "white",
+    fontface = "bold"
+  ) +
+  scale_fill_gradient(
+    low    = "#FFF3CD",
+    high   = "#E55300",
+    name   = "% Votos válidos",
+    labels = function(x) paste0(x, "%")
+  ) +
+  theme_void() +
+  labs(
+    title    = "Keiko Fujimori (Fuerza Popular)",
+    subtitle = "% de votos válidos por departamento — 1ra Vuelta 2026",
+    caption  = "Fuente: ONPE | Elaboración propia"
+  ) +
+  theme(
+    plot.title    = element_text(hjust = 0.5, size = 14, face = "bold",
+                                 color = "#E55300"),
+    plot.subtitle = element_text(hjust = 0.5, size = 10, color = "#555555"),
+    plot.caption  = element_text(hjust = 1, size = 8, color = "gray50"),
+    legend.position = "right"
+  )
+```
+
+## Participación electoral por departamento
+
+```{r mapa_participacion}
+ggplot(data = peru_elec) +
+  geom_sf(aes(fill = participacion), color = "white", linewidth = 0.5) +
+  geom_text(
+    aes(x = coords_x, y = coords_y,
+        label = paste0(round(participacion, 1), "%")),
+    size     = 2.3,
+    color    = "white",
+    fontface = "bold"
+  ) +
+  scale_fill_viridis_c(
+    option    = "plasma",
+    name      = "Participación (%)",
+    labels    = function(x) paste0(x, "%"),
+    direction = 1
+  ) +
+  theme_void() +
+  labs(
+    title    = "Participación Electoral — Primera Vuelta 2026",
+    subtitle = "Porcentaje de electores que sufragaron, por departamento",
+    caption  = "Fuente: ONPE | Elaboración propia"
+  ) +
+  theme(
+    plot.title    = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 10, color = "#555555"),
+    plot.caption  = element_text(hjust = 1, size = 8, color = "gray50"),
+    legend.position = "right"
+  )
+```
+
+------------------------------------------------------------------------
+
+# Panel Comparativo
+
+```{r panel_mapas, fig.width=14, fig.height=7}
+p_izq <- ggplot(data = peru_elec) +
+  geom_sf(aes(fill = partido_ganador), color = "white", linewidth = 0.4) +
+  scale_fill_manual(values = colores_partidos, name = "Partido") +
+  theme_void() +
+  labs(title = "A. Ganador por departamento") +
+  theme(
+    plot.title      = element_text(hjust = 0.5, face = "bold", size = 11),
+    legend.position = "bottom",
+    legend.text     = element_text(size = 7),
+    legend.title    = element_text(size = 8, face = "bold")
+  )
+
+p_der <- ggplot(data = peru_elec) +
+  geom_sf(aes(fill = participacion), color = "white", linewidth = 0.4) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    name   = "Participación (%)",
+    labels = function(x) paste0(x, "%")
+  ) +
+  theme_void() +
+  labs(title = "B. Participación electoral (%)") +
+  theme(
+    plot.title      = element_text(hjust = 0.5, face = "bold", size = 11),
+    legend.position = "bottom",
+    legend.text     = element_text(size = 7),
+    legend.title    = element_text(size = 8, face = "bold")
+  )
+
+plot_grid(p_izq, p_der, ncol = 2) +
+  theme(plot.background = element_rect(fill = "white", color = NA))
+```
+
+------------------------------------------------------------------------
+
+# Mapa Interactivo con leaflet
+
+```{r mapa_leaflet}
+# Transformar a WGS84 (requerido por leaflet)
+peru_wgs <- st_transform(peru_elec, crs = 4326)
+
+pal_partido <- colorFactor(
+  palette = c("#F97316", "#EF4444", "#1D4ED8", "#7C3AED"),
+  domain  = peru_wgs$partido_ganador
+)
+
+leaflet(peru_wgs) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(
+    fillColor   = ~pal_partido(partido_ganador),
+    fillOpacity = 0.75,
+    color       = "white",
+    weight      = 1.5,
+    highlight   = highlightOptions(
+      weight       = 3,
+      color        = "#333",
+      bringToFront = TRUE
+    ),
+    popup = ~paste0(
+      "<b>", DEPARTAMEN, "</b><br/>",
+      "<b>Ganador:</b> ", candidato_ganador, "<br/>",
+      "<b>Partido:</b> ", partido_ganador, "<br/>",
+      "<b>% votos ganador:</b> ", round(pct_ganador, 1), "%<br/>",
+      "<b>% Fujimori:</b> ", round(pct_fujimori, 1), "%<br/>",
+      "<b>Participación:</b> ", round(participacion, 1), "%"
+    ),
+    label = ~DEPARTAMEN
+  ) %>%
+  addLegend(
+    position = "bottomright",
+    pal      = pal_partido,
+    values   = ~partido_ganador,
+    title    = "Partido ganador",
+    opacity  = 0.8
+  )
+```
+
+------------------------------------------------------------------------
+
+# Gráfico de Barras — Resultados Nacionales
+
+```{r barras_nacionales, fig.width=10, fig.height=5}
+resultados_nac <- tibble(
+  candidato = c(
+    "Keiko Fujimori\n(Fuerza Popular)",
+    "Roberto Sánchez\n(Juntos por el Perú)",
+    "Rafael López Aliaga\n(Renovación Popular)",
+    "Jorge Nieto\n(Buen Gobierno)",
+    "Ricardo Belmont\n(Cívico Obras)",
+    "Carlos Álvarez\n(País para Todos)",
+    "Alfonso López Chau\n(Ahora Nación)",
+    "Marisol Pérez Tello\n(Primero la Gente)",
+    "Carlos Espá\n(Partido Sicreo)"
+  ),
+  pct = c(17.05, 12.04, 11.91, 11.05, 10.17, 7.88, 7.34, 3.43, 3.37),
+  color_barra = c(
+    "#F97316", "#EF4444", "#1D4ED8", "#7C3AED",
+    "#059669", "#0891B2", "#D97706", "#BE185D", "#6B7280"
+  )
+) %>%
+  mutate(candidato = fct_reorder(candidato, pct))
+
+ggplot(resultados_nac, aes(x = candidato, y = pct, fill = I(color_barra))) +
+  geom_col(width = 0.7) +
+  geom_text(
+    aes(label = paste0(pct, "%")),
+    hjust    = -0.1,
+    size     = 3.5,
+    fontface = "bold"
+  ) +
+  coord_flip() +
+  scale_y_continuous(
+    limits = c(0, 22),
+    labels = function(x) paste0(x, "%")
+  ) +
+  theme_minimal(base_size = 11) +
+  labs(
+    title    = "Resultados Nacionales — Primera Vuelta Presidencial 2026",
+    subtitle = "Porcentaje de votos válidos | ~96% de actas procesadas (ONPE)",
+    x        = NULL,
+    y        = "% de votos válidos",
+    caption  = "Fuente: ONPE | Elaboración propia"
+  ) +
+  theme(
+    plot.title         = element_text(face = "bold", size = 13),
+    plot.subtitle      = element_text(color = "gray40", size = 10),
+    plot.caption       = element_text(hjust = 1, size = 8, color = "gray50"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank()
+  )
+```
+
+------------------------------------------------------------------------
+
+# Flujo de trabajo
+
+```         
+1. Descargar shapefile (.shp) de Perú por departamentos
+   ↓
+2. Leer con sf::st_read()
+   ↓
+3. Calcular centroides para etiquetas
+   ↓
+4. Preparar datos de interés
+   ↓
+5. Unir shapefile + datos con left_join()
+   ↓
+6. Visualizar con ggplot2::geom_sf()
+   ↓
+7. (Opcional) Mapa interactivo con leaflet
+```
+
+------------------------------------------------------------------------
+
+# Recursos
+
+-   Shapefile Perú: <https://www.geogpsperu.com>
+-   ONPE Resultados 2026: <https://resultadoelectoral.onpe.gob.pe/>
+-   Tutorial base: <https://github.com/rmcondor/rmaps-peruvian-case>
+-   Documentación `sf`: <https://r-spatial.github.io/sf/>
+-   Geocomputation with R: <https://r.geocompx.org/>
+
+------------------------------------------------------------------------
+
+*Tutorial elaborado con R `r R.version$major`.`r R.version$minor` — Paquetes: `sf`, `ggplot2`, `tidyverse`, `leaflet` — Datos: ONPE 2026*

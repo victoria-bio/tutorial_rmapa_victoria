@@ -1,0 +1,9 @@
+"0","# ─── Configuración del directorio ───────────────────────────────────────────"
+"0","setwd(""C:/Users/Victoria/BIOINGENIERIA UTEC/github/tutorial_rmapa_victoria"")"
+"0",""
+"0",""
+"0","# ─── Leer el shapefile ───────────────────────────────────────────────────────"
+"0","peru_sf <- st_read(""inputs/LIMITE_DEPARTAMENTAL_INEI_geogpsperu.shp"")"
+"2","Error in st_read(""inputs/LIMITE_DEPARTAMENTAL_INEI_geogpsperu.shp"") : 
+  could not find function ""st_read""
+"

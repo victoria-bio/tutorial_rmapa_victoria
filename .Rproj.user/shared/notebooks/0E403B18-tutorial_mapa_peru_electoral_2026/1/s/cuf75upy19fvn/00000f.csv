@@ -1,0 +1,5 @@
+"0","# Leer el shapefile desde la carpeta inputs/"
+"0","peru_sf <- st_read(""inputs/LIMITE_DEPARTAMENTAL_INEI_geogpsperu.shp"")"
+"2","Error in st_read(""inputs/LIMITE_DEPARTAMENTAL_INEI_geogpsperu.shp"") : 
+  could not find function ""st_read""
+"
