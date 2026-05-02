@@ -1,7 +1,0 @@
-"0","# Instala la primera vez (quita el #):"
-"0","# install.packages(c(""sf"", ""tidyverse"", ""ggrepel"", ""viridis"","
-"0","#                    ""scales"", ""cowplot"", ""RColorBrewer"", ""leaflet""))"
-"0","library(readr)"
-"2","Error: package or namespace load failed for ‘readr’ in loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]]):
- namespace ‘rlang’ 1.1.6 is already loaded, but >= 1.1.7 is required
-"
