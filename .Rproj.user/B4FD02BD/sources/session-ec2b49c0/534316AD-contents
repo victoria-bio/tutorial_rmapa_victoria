@@ -100,6 +100,7 @@ ggplot(data = peru_sf) +
     plot.title   = element_text(hjust = 0.5, size = 14, face = "bold"),
     plot.caption = element_text(hjust = 1, size = 8, color = "gray50")
   )
+ggsave("outputs/01_mapa_base.png", width = 8, height = 10, dpi = 150)
 ```
 
 ## Mapa con etiquetas de departamentos
@@ -132,6 +133,7 @@ ggplot(data = peru_sf) +
     plot.title   = element_text(hjust = 0.5, size = 14, face = "bold"),
     plot.caption = element_text(hjust = 1, size = 8, color = "gray50")
   )
+ggsave("outputs/02_mapa_etiquetas.png", width = 8, height = 10, dpi = 150)
 ```
 
 ------------------------------------------------------------------------
@@ -143,7 +145,7 @@ Las Elecciones Generales 2026 se celebraron el 12 y 13 de abril de 2026. Con apr
 (97.465% de actas al 02/05/2026)
 
 | Candidato               | Partido              | \% Votos Válidos | N° Votos    |
-|-------------------------|----------------------|------------------|-------------|
+|-------------------|------------------|------------------|------------------|
 | **Keiko Fujimori**      | Fuerza Popular       | 17.121%          | \~2,801,661 |
 | **Roberto Sánchez**     | Juntos por el Perú   | 12.047%          | \~1,971,439 |
 | **Rafael López Aliaga** | Renovación Popular   | 11.879%          | \~1,943,981 |
@@ -284,6 +286,7 @@ ggplot(data = peru_elec) +
     legend.title    = element_text(size = 10, face = "bold"),
     legend.text     = element_text(size = 9)
   )
+ggsave("outputs/03_mapa_ganadores.png", width = 10, height = 10, dpi = 150)
 ```
 
 ## Porcentaje de votos de Keiko Fujimori por departamento
@@ -317,6 +320,7 @@ ggplot(data = peru_elec) +
     plot.caption  = element_text(hjust = 1, size = 8, color = "gray50"),
     legend.position = "right"
   )
+ggsave("outputs/04_mapa_keiko.png", width = 8, height = 10, dpi = 150)
 ```
 
 Los datos de `pct_fujimori` provienen del conteo oficial de la ONPE al 97.465% de actas procesadas (02/05/2026), consultados a través de la plataforma `resultadoelectoral.onpe.gob.pe` y verificados con medios como Infobae Perú y La República. Keiko Fujimori concentra su fortaleza en el norte y la selva, en Tumbes (34%), Ucayali (29.5%), Loreto (28%), Piura (28%) y Lambayeque (26%), mientras en la sierra sur obtiene menos del 10%.
@@ -357,6 +361,8 @@ ggplot(data = peru_elec) +
     legend.title    = element_text(size = 9, face = "bold"),
     legend.text     = element_text(size = 8)
   )
+
+ggsave("outputs/05_mapa_participacion.png", width = 8, height = 10, dpi = 150)
 ```
 
 ------------------------------------------------------------------------
@@ -395,6 +401,8 @@ p_der <- ggplot(data = peru_elec) +
 
 plot_grid(p_izq, p_der, ncol = 2) +
   theme(plot.background = element_rect(fill = "white", color = NA))
+
+ggsave("outputs/06_panel_comparativo.png", width = 14, height = 7, dpi = 150)
 ```
 
 ------------------------------------------------------------------------
@@ -494,6 +502,7 @@ ggplot(resultados_nac, aes(x = candidato, y = pct, fill = I(color_barra))) +
     panel.grid.major.y = element_blank(),
     panel.grid.minor   = element_blank()
   )
+ggsave("outputs/07_barras_nacionales.png", width = 10, height = 5, dpi = 150)
 ```
 
 ------------------------------------------------------------------------
